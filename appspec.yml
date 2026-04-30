@@ -3,13 +3,13 @@ os: linux
 
 files:
   - source: .
-    destination: /home/ubuntu/app
+    destination: /var/www/html
 
 hooks:
   AfterInstall:
     - location: scripts/install.sh
       timeout: 300
-      runas: root   # 🔥 IMPORTANT CHANGE
+      runas: root
 
   ApplicationStart:
     - location: scripts/start.sh
