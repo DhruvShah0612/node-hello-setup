@@ -3,17 +3,15 @@ set -e
 
 echo "INSTALL START"
 
-# OLD APP DELETE 🔥
-rm -rf /home/ubuntu/app/*
-mkdir -p /home/ubuntu/app
-
 # permission fix
-chown -R ubuntu:ubuntu /home/ubuntu/app
+chown -R ubuntu:ubuntu /var/www/html
 
-cd /home/ubuntu/app
+cd /var/www/html
+
+# check files exist
+ls -la
 
 # install dependencies
 sudo -u ubuntu npm install
-# npm install
 
 echo "INSTALL DONE"
