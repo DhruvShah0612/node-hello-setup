@@ -1,32 +1,25 @@
 #!/bin/bash
 set -e
 
-echo "===== INSTALL STAGE START ====="
+echo "INSTALL START"
 
-# Go to directory
+rm -rf /home/ubuntu/app/*
 mkdir -p /home/ubuntu/app
-cd /home/ubuntu/app
 
-# Fix ownership (safe)
+# permissions fix
 chown -R ubuntu:ubuntu /home/ubuntu/app
 
-# Update packages (IMPORTANT)
-sudo apt-get update -y
+cd /home/ubuntu/app
 
-# Install Node.js if not present
+# node install
 if ! command -v node > /dev/null; then
-  echo "Installing Node.js..."
-  curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
-  sudo apt-get install -y nodejs
+  curl -fsSL https://deb.nodesource.com/setup_18.x | bash -
+  apt-get install -y nodejs
 fi
 
-# Install PM2 if not present
+# pm2 install
 if ! command -v pm2 > /dev/null; then
-  echo "Installing PM2..."
-  sudo npm install -g pm2
+  npm install -g pm2
 fi
 
-# Install dependencies (safe)
-npm install --unsafe-perm
-
-echo "===== INSTALL STAGE COMPLETE ====="
+echo "INSTALL DONE"

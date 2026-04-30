@@ -2,15 +2,8 @@ version: 0.0
 os: linux
 
 files:
-  - source: /
+  - source: .
     destination: /home/ubuntu/app
-    overwrite: true
-
-permissions:
-  - object: /home/ubuntu/app
-    pattern: "**"
-    owner: ubuntu
-    group: ubuntu
 
 hooks:
   BeforeInstall:
