@@ -6,10 +6,6 @@ chown -R ubuntu:ubuntu /var/www/html
 
 cd /var/www/html
 
-# check files exist
-ls -la
-
 # install dependencies
-sudo -u ubuntu npm install
+sudo npm install
 
-echo "INSTALL DONE"
