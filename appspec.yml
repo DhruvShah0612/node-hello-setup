@@ -6,13 +6,12 @@ files:
     destination: /home/ubuntu/app
 
 hooks:
-  AfterInstall:
+  BeforeInstall:
     - location: scripts/install.sh
       timeout: 300
-      runas: ubuntu
+      runas: root
 
   ApplicationStart:
     - location: scripts/start.sh
       timeout: 300
       runas: ubuntu
-
