@@ -3,21 +3,19 @@ set -e
 
 echo "===== DEPLOY START ====="
 
-# permission fix
-chown -R ubuntu:ubuntu /var/www/html
-
 cd /var/www/html
 
-# 🧹 CLEAN OLD FILES
-echo "Cleaning old files..."
+# 🔥 CLEAN OLD FILES (IMPORTANT FIX)
 rm -rf /var/www/html/*
 
 echo "Old files removed"
 
-# 📦 CHECK EMPTY DIR
+# permission fix
+chown -R ubuntu:ubuntu .
+
+echo "Listing files..."
 ls -la
 
-# install dependencies
-sudo npm install
+npm install
 
 echo "===== INSTALL DONE ====="
