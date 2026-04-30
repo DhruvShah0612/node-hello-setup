@@ -1,8 +1,6 @@
 #!/bin/bash
 set -e
 
-echo "INSTALL START"
-
 # permission fix
 chown -R ubuntu:ubuntu /var/www/html
 

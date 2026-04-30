@@ -2,14 +2,14 @@ version: 0.0
 os: linux
 
 files:
-  - source: .
+  - source: /
     destination: /var/www/html
 
 hooks:
   AfterInstall:
     - location: scripts/install.sh
       timeout: 300
-      runas: root
+      runas: ubuntu
 
   ApplicationStart:
     - location: scripts/start.sh
