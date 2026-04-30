@@ -4,12 +4,13 @@ os: linux
 files:
   - source: /
     destination: /home/ubuntu/app
+    overwrite: true
 
 hooks:
-  AfterInstall:
+  BeforeInstall:
     - location: scripts/install.sh
       timeout: 300
-      runas: ubuntu
+      runas: root
 
   ApplicationStart:
     - location: scripts/start.sh
