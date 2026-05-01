@@ -11,7 +11,7 @@ ls -la
 
 # set permissions
 # chown -R ubuntu:ubuntu /var/www/html
-chmod -R 755 /var/www/html
+# chmod -R 755 /var/www/html
 
 # install dependencies
 npm install
