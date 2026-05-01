@@ -1,30 +1,17 @@
 #!/bin/bash
 set -e
-echo "===== DEPLOY START ====="
 
-# Stop PM2
-pm2 delete node-app || true
-pm2 kill || true
-echo "PM2 stopped"
+echo "INSTALL START"
+
+# permission fix
+chown -R ubuntu:ubuntu /var/www/html
 
 cd /var/www/html
 
-# DELETE EVERYTHING including hidden files
-rm -rf /var/www/html/*
-rm -rf /var/www/html/.[^.]*  2>/dev/null || true
-echo "All old files deleted"
-
-# Verify deletion
-echo "After delete:"
-ls -la /var/www/html/
-
-# Fix permissions
-chown -R ubuntu:ubuntu /var/www/html
-
-# Show new files
-echo "New deployed files:"
+# check files exist
 ls -la
 
-# npm install
-npm install
-echo "===== INSTALL DONE ====="
+# install dependencies
+sudo -u ubuntu npm install
+
+echo "INSTALL DONE"
