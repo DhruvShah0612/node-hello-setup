@@ -1,17 +1,16 @@
 #!/bin/bash
 set -e
 
-echo "INSTALL START"
-
-# permission fix
-chown -R ubuntu:ubuntu /var/www/html
-
 cd /var/www/html
+
+# optional cleanup (safe)
+rm -rf node_modules
 
 # check files exist
 ls -la
 
-# install dependencies
-sudo -u ubuntu npm install
+# set permissions
+chmod -R 755 /var/www/html
 
-echo "INSTALL DONE"
+# install dependencies
+npm install
