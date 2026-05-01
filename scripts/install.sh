@@ -2,27 +2,29 @@
 set -e
 echo "===== DEPLOY START ====="
 
-# Step 1: Stop old PM2 process FIRST (before deleting files)
+# Stop PM2
 pm2 delete node-app || true
 pm2 kill || true
 echo "PM2 stopped"
 
-# Step 2: Go to destination
 cd /var/www/html
 
-# Step 3: Remove old files (now safe because PM2 is stopped)
-find /var/www/html -mindepth 1 ! -name 'node_modules' -exec rm -rf {} + 2>/dev/null || true
-echo "Old files removed (node_modules kept for speed)"
+# DELETE EVERYTHING including hidden files
+rm -rf /var/www/html/*
+rm -rf /var/www/html/.[^.]*  2>/dev/null || true
+echo "All old files deleted"
 
-# Step 4: Fix permissions
+# Verify deletion
+echo "After delete:"
+ls -la /var/www/html/
+
+# Fix permissions
 chown -R ubuntu:ubuntu /var/www/html
 
-# Step 5: Show what was deployed
-echo "Listing new files..."
+# Show new files
+echo "New deployed files:"
 ls -la
 
-# Step 6: Install dependencies
+# npm install
 npm install
-echo "npm install done"
-
 echo "===== INSTALL DONE ====="
