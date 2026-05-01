@@ -3,10 +3,10 @@ set -e
 
 cd /var/www/html
 
-# remove old files safely (hidden files pan)
-rm -rf ./* ./.??*
+# optional cleanup (safe)
+rm -rf node_modules
 
-# permissions
+# set permissions
 chmod -R 755 /var/www/html
 
 # install dependencies
