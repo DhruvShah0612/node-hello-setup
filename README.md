@@ -39,360 +39,7 @@ EC2 Ubuntu
         :3000
 ```
 
-### Automatic Deployment Flow
-
-``` text
-Code Change
-    ↓
-git push origin main
-    ↓
-GitHub
-    ↓
-CodePipeline automatically triggers
-    ↓
-Source
-    ↓
-Deploy
-    ↓
-CodeDeploy
-    ↓
-EC2
-    ↓
-npm install
-    ↓
-PM2 restart
-    ↓
-New Version LIVE
-```
-
-------------------------------------------------------------------------
-
-# 🏗️ Architecture Components
-
-  Component          Purpose
-  ------------------ ------------------------------------------
-  GitHub             Stores private source code
-  CodePipeline       Automatically starts the CI/CD pipeline
-  S3                 Stores CodePipeline deployment artifacts
-  CodeDeploy         Deploys the artifact to EC2
-  EC2                Runs the Node.js application
-  CodeDeploy Agent   Receives deployment instructions on EC2
-  IAM                Provides required permissions
-  PM2                Keeps Node.js application running
-  Nginx              Reverse proxy and public entry point
-
-------------------------------------------------------------------------
-
-# 📁 Final GitHub Repository Structure
-
-``` text
-node-hello-app/
-│
-├── index.js
-├── package.json
-├── package-lock.json
-├── appspec.yml
-│
-└── scripts/
-    ├── install.sh
-    └── start.sh
-```
-
-------------------------------------------------------------------------
-
-# 🟢 STEP 1 --- Create Node.js Project
-
-Create the project locally:
-
-``` bash
-mkdir node-hello-app
-cd node-hello-app
-```
-
-Initialize Node.js:
-
-``` bash
-npm init -y
-```
-
-Install Express:
-
-``` bash
-npm install express
-```
-
-Create `index.js`:
-
-``` bash
-nano index.js
-```
-
-Add:
-
-``` javascript
-const express = require("express");
-
-const app = express();
-
-const PORT = 3000;
-
-app.get("/", (req, res) => {
-    res.send("Hello from Node.js AWS CodeDeploy 🚀");
-});
-
-app.listen(PORT, () => {
-    console.log(`Node.js app running on port ${PORT}`);
-});
-```
-
-Test locally:
-
-``` bash
-node index.js
-```
-
-Open:
-
-``` text
-http://localhost:3000
-```
-
-Stop the application:
-
-``` text
-CTRL + C
-```
-
-------------------------------------------------------------------------
-
-# 🟢 STEP 2 --- Create Deployment Files
-
-Create the scripts directory:
-
-``` bash
-mkdir scripts
-```
-
-The project should contain:
-
-``` text
-index.js
-package.json
-package-lock.json
-appspec.yml
-scripts/
-    install.sh
-    start.sh
-```
-
-------------------------------------------------------------------------
-
-# 🟢 STEP 3 --- Create appspec.yml
-
-Create the file at the **root of the repository**:
-
-``` bash
-nano appspec.yml
-```
-
-Use:
-
-``` yaml
-version: 0.0
-os: linux
-
-files:
-  - source: /
-    destination: /var/www/html
-
-permissions:
-  - object: /var/www/html
-    pattern: "**"
-    owner: ubuntu
-    group: ubuntu
-    mode: 755
-
-hooks:
-  AfterInstall:
-    - location: scripts/install.sh
-      timeout: 300
-      runas: ubuntu
-
-  ApplicationStart:
-    - location: scripts/start.sh
-      timeout: 300
-      runas: ubuntu
-```
-
-### What does AppSpec do?
-
-``` text
-appspec.yml
-    ↓
-Tells CodeDeploy
-    ↓
-Where to copy files
-    ↓
-Which scripts to run
-    ↓
-When to run those scripts
-```
-
-------------------------------------------------------------------------
-
-# 🟢 STEP 4 --- Create install.sh
-
-Create:
-
-``` bash
-nano scripts/install.sh
-```
-
-Use:
-
-``` bash
-#!/bin/bash
-
-set -e
-
-cd /var/www/html
-
-echo "===== Installing Node.js dependencies ====="
-
-npm install
-
-echo "===== Dependencies installed ====="
-```
-
-------------------------------------------------------------------------
-
-# 🟢 STEP 5 --- Create start.sh
-
-Create:
-
-``` bash
-nano scripts/start.sh
-```
-
-Use:
-
-``` bash
-#!/bin/bash
-
-set -e
-
-cd /var/www/html
-
-echo "===== Starting Node.js application ====="
-
-pm2 delete node-app || true
-
-pm2 start index.js --name node-app
-
-pm2 save
-
-echo "===== Node.js application started ====="
-
-pm2 status
-```
-
-------------------------------------------------------------------------
-
-# 🟢 STEP 6 --- Make Deployment Scripts Executable
-
-Run:
-
-``` bash
-chmod +x scripts/install.sh
-chmod +x scripts/start.sh
-```
-
-Check:
-
-``` bash
-ls -l scripts/
-```
-
-Expected:
-
-``` text
--rwxr-xr-x install.sh
--rwxr-xr-x start.sh
-```
-
-------------------------------------------------------------------------
-
-# 🟢 STEP 7 --- Create GitHub Private Repository
-
-Create a private repository on GitHub.
-
-Example:
-
-``` text
-node-hello-app
-```
-
-Initialize Git:
-
-``` bash
-git init
-```
-
-Set the branch:
-
-``` bash
-git branch -M main
-```
-
-Add remote:
-
-``` bash
-git remote add origin git@github.com:YOUR_USERNAME/node-hello-app.git
-```
-
-Add files:
-
-``` bash
-git add .
-```
-
-Commit:
-
-``` bash
-git commit -m "initial node app"
-```
-
-Push:
-
-``` bash
-git push -u origin main
-```
-
-## Important
-
-For this architecture, **EC2 does NOT need to clone the GitHub
-repository**.
-
-Do not put GitHub SSH keys or GitHub tokens on EC2 for this deployment
-flow.
-
-The flow is:
-
-``` text
-GitHub
-   ↓
-CodePipeline
-   ↓
-Artifact
-   ↓
-CodeDeploy
-   ↓
-EC2
-```
-
-------------------------------------------------------------------------
-
-# 🟢 STEP 8 --- Launch EC2 Instance
+# 🟢 STEP 1 --- Launch EC2 Instance
 
 AWS Console:
 
@@ -439,7 +86,7 @@ Download the `.pem` file.
 
 ------------------------------------------------------------------------
 
-# 🟢 STEP 9 --- EC2 Security Group
+# 🟢 STEP 2 --- EC2 Security Group
 
 Configure inbound rules.
 
@@ -464,7 +111,7 @@ proxy.
 
 ------------------------------------------------------------------------
 
-# 🟢 STEP 10 --- Connect to EC2
+# 🟢 STEP 3 --- Connect to EC2
 
 ``` bash
 ssh -i node-app-key.pem ubuntu@EC2_PUBLIC_IP
@@ -472,7 +119,7 @@ ssh -i node-app-key.pem ubuntu@EC2_PUBLIC_IP
 
 ------------------------------------------------------------------------
 
-# 🟢 STEP 11 --- Update Ubuntu
+# 🟢 STEP 4 --- Update Ubuntu
 
 ``` bash
 sudo apt update -y
@@ -484,7 +131,7 @@ sudo apt upgrade -y
 
 ------------------------------------------------------------------------
 
-# 🟢 STEP 12 --- Install Node.js
+# 🟢 STEP 5 --- Install Node.js
 
 Example using Node.js 22:
 
@@ -510,7 +157,7 @@ npm -v
 
 ------------------------------------------------------------------------
 
-# 🟢 STEP 13 --- Install PM2
+# 🟢 STEP 6 --- Install PM2
 
 ``` bash
 sudo npm install -g pm2
@@ -526,7 +173,7 @@ PM2 is used to keep the Node.js application running.
 
 ------------------------------------------------------------------------
 
-# 🟢 STEP 14 --- Install Ruby
+# 🟢 STEP 7 --- Install Ruby
 
 CodeDeploy Agent requires Ruby.
 
@@ -542,7 +189,7 @@ ruby --version
 
 ------------------------------------------------------------------------
 
-# 🟢 STEP 15 --- Install CodeDeploy Agent
+# 🟢 STEP 8 --- Install CodeDeploy Agent
 
 The example below uses the Mumbai (`ap-south-1`) region.
 
@@ -594,7 +241,7 @@ Active: active (running)
 
 ------------------------------------------------------------------------
 
-# 🟢 STEP 16 --- Create EC2 IAM Role
+# 🟢 STEP 9 --- Create EC2 IAM Role
 
 Go to:
 
@@ -635,7 +282,7 @@ Create the role.
 
 ------------------------------------------------------------------------
 
-# 🟢 STEP 17 --- Attach IAM Role to EC2
+# 🟢 STEP 10 --- Attach IAM Role to EC2
 
 Go:
 
@@ -656,27 +303,7 @@ EC2-CodeDeploy-Role
 
 Save.
 
-------------------------------------------------------------------------
-
-# 🟢 STEP 18 --- Verify EC2 IAM Role
-
-Install AWS CLI if required:
-
-``` bash
-sudo apt install awscli -y
-```
-
-Check identity:
-
-``` bash
-aws sts get-caller-identity
-```
-
-The command should return the AWS account/role information.
-
-------------------------------------------------------------------------
-
-# 🟢 STEP 19 --- Install Nginx
+# 🟢 STEP 11 --- Install Nginx
 
 ``` bash
 sudo apt install nginx -y
@@ -702,7 +329,7 @@ sudo systemctl status nginx
 
 ------------------------------------------------------------------------
 
-# 🟢 STEP 20 --- Configure Nginx
+# 🟢 STEP 12 --- Configure Nginx
 
 Open:
 
@@ -754,7 +381,7 @@ sudo systemctl restart nginx
 
 ------------------------------------------------------------------------
 
-# 🟢 STEP 21 --- Create CodeDeploy Service IAM Role
+# 🟢 STEP 13 --- Create CodeDeploy Service IAM Role
 
 This is the **second IAM role**.
 
@@ -836,7 +463,7 @@ CodeDeploy
 
 ------------------------------------------------------------------------
 
-# 🟢 STEP 22 --- Tag EC2
+# 🟢 STEP 14 --- Tag EC2
 
 Tag the EC2 instance.
 
@@ -857,7 +484,7 @@ This tag can be used by CodeDeploy to identify the target EC2 instance.
 
 ------------------------------------------------------------------------
 
-# 🟢 STEP 23 --- Create CodeDeploy Application
+# 🟢 STEP 15 --- Create CodeDeploy Application
 
 Go:
 
@@ -884,7 +511,7 @@ Create application.
 
 ------------------------------------------------------------------------
 
-# 🟢 STEP 24 --- Create CodeDeploy Deployment Group
+# 🟢 STEP 16 --- Create CodeDeploy Deployment Group
 
 Inside:
 
@@ -949,7 +576,7 @@ Create the deployment group.
 
 ------------------------------------------------------------------------
 
-# 🟢 STEP 25 --- Create CodePipeline
+# 🟢 STEP 17 --- Create CodePipeline
 
 Go:
 
@@ -967,7 +594,7 @@ node-app-pipeline
 
 ------------------------------------------------------------------------
 
-# 🟢 STEP 26 --- CodePipeline Execution Mode
+# 🟢 STEP 18 --- CodePipeline Execution Mode
 
 Select:
 
@@ -984,7 +611,7 @@ For a single EC2 deployment this is a useful option.
 
 ------------------------------------------------------------------------
 
-# 🟢 STEP 27 --- CodePipeline Service Role
+# 🟢 STEP 19 --- CodePipeline Service Role
 
 Select:
 
@@ -1010,7 +637,7 @@ This role is for **CodePipeline itself**.
 
 ------------------------------------------------------------------------
 
-# 🟢 STEP 28 --- Add GitHub Source
+# 🟢 STEP 20 --- Add GitHub Source
 
 For the source provider choose:
 
@@ -1056,7 +683,7 @@ Return to AWS and select the installation.
 
 ------------------------------------------------------------------------
 
-# 🟢 STEP 29 --- Select GitHub Repository
+# 🟢 STEP 21 --- Select GitHub Repository
 
 Select:
 
