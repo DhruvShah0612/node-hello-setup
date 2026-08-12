@@ -18,25 +18,50 @@ GitHub Private Repository
    ▼
 AWS CodePipeline
    │
-   │ Source Artifact
+   │ Source Stage
+   │
+   │ Fetch source code from GitHub
    ▼
-S3 Artifact Store
+Source Artifact
+   │
+   │ CodePipeline stores artifact
+   ▼
+Temporary S3 Artifact Store
    │
    ▼
 AWS CodeDeploy
    │
-   │ Deployment
+   │ Deployment starts
+   ▼
+CodeDeploy Agent on EC2
+   │
+   │ Downloads deployment artifact
    ▼
 EC2 Ubuntu
    │
-   ├── CodeDeploy Agent
-   ├── Node.js
-   ├── PM2
-   └── Nginx
-          │
-          ▼
-      Node.js App
-        :3000
+   │ Reads appspec.yml
+   ▼
+appspec.yml
+   │
+   ├── AfterInstall
+   │       └── install.sh
+   │
+   └── ApplicationStart
+           └── start.sh
+   │
+   ▼
+Node.js Application
+   │
+   │ PM2
+   ▼
+Node.js App
+   │
+   │ Port 3000
+   ▼
+Nginx
+   │
+   ▼
+Browser
 ```
 
 # 🟢 STEP 1 --- Launch EC2 Instance
