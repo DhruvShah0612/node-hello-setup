@@ -6,15 +6,21 @@ files:
     destination: /var/www/html
 
 permissions:
+  # Target folder jya permissions apply karvi
   - object: /var/www/html
+    # Badha files & folders mate
     pattern: "**"
+    # Owner ubuntu set karse
     owner: ubuntu
+    # Group ubuntu set karse
     group: ubuntu
+    # Permission mode (chmod 755)
     mode: 755
 
 hooks:
   AfterInstall:
     - location: scripts/install.sh
+      # Max time 300 sec
       timeout: 300
       runas: ubuntu
 
